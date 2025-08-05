@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-airflow
+  namespace: llm-production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-airflow
+  template:
+    metadata:
+      labels:
+        app: redis-airflow
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-airflow
+  namespace: llm-production
+spec:
+  selector:
+    app: redis-airflow
+  ports:
+  - port: 6379
+    targetPort: 6379

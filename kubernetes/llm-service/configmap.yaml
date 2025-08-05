@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-service-config
+  namespace: llm-production
+data:
+  MODEL_NAME: "meta-llama/Llama-2-7b-chat-hf"
+  MAX_LENGTH: "512"
+  TEMPERATURE: "0.7"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"

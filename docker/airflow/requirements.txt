@@ -1,0 +1,5 @@
+apache-airflow-providers-kubernetes==7.8.0
+apache-airflow-providers-redis==3.4.1
+apache-airflow-providers-http==4.6.0
+requests==2.31.0
+pandas==2.1.3

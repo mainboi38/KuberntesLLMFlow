@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-webserver
+  namespace: llm-production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-webserver
+  template:
+    metadata:
+      labels:
+        app: airflow-webserver
+    spec:
+      serviceAccountName: airflow
+      initContainers:
+      - name: airflow-init
+        image: airflow:latest
+        imagePullPolicy: IfNotPresent
+        command: ["airflow", "db", "init"]
+        envFrom:
+        - secretRef:
+            name: airflow-secrets
+      containers:
+      - name: webserver
+        image: airflow:latest
+        imagePullPolicy: IfNotPresent
+        command: ["airflow", "webserver"]
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: airflow-secrets
+        - configMapRef:
+            name: airflow-config
+        volumeMounts:
+        - name: dags
+          mountPath: /opt/airflow/dags
+        - name: logs
+          mountPath: /opt/airflow/logs
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+      volumes:
+      - name: dags
+        configMap:
+          name: airflow-dags
+      - name: logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow-webserver
+  namespace: llm-production
+spec:
+  selector:
+    app: airflow-webserver
+  ports:
+  - port: 8080
+    targetPort: 8080

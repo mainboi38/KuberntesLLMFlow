@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airflow-config
+  namespace: llm-production
+data:
+  airflow.cfg: |
+    [core]
+    dags_folder = /opt/airflow/dags
+    executor = CeleryExecutor
+    
+    [webserver]
+    expose_config = True
+    
+    [celery]
+    broker_url = redis://:@redis-airflow:6379/0
+    result_backend = db+postgresql://airflow:airflow@postgres-airflow:5432/airflow
+    
+    [scheduler]
+    catchup_by_default = False

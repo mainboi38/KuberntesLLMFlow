@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-airflow
+  namespace: llm-production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-airflow
+  template:
+    metadata:
+      labels:
+        app: postgres-airflow
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:14-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: airflow
+        - name: POSTGRES_USER
+          value: airflow
+        - name: POSTGRES_PASSWORD
+          value: airflow
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: postgres-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-airflow
+  namespace: llm-production
+spec:
+  selector:
+    app: postgres-airflow
+  ports:
+  - port: 5432
+    targetPort: 5432
