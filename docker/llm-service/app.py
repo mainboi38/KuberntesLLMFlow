@@ -10,6 +10,7 @@ from datetime import datetime
 import redis
 import json
 import os
+import hashlib
 from prometheus_client import Counter, Histogram, generate_latest
 import time
 
@@ -119,9 +120,10 @@ async def generate_text(request: GenerationRequest):
         raise HTTPException(status_code=503, detail="Model not loaded")
     
     start_time = time.time()
-    
+
     # Check cache if enabled
-    cache_key = f"llm:generation:{hash(request.prompt)}:{request.max_length}:{request.temperature}"
+    prompt_hash = hashlib.sha256(request.prompt.encode("utf-8")).hexdigest()
+    cache_key = f"llm:generation:{prompt_hash}:{request.max_length}:{request.temperature}"
     if request.cache_enabled:
         cached_result = redis_client.get(cache_key)
         if cached_result:
