@@ -16,19 +16,19 @@ spec:
       containers:
         - name: postgres
           image: postgres:14
-        ports:
-        - containerPort: 5432
-        env:
-        - name: POSTGRES_DB
-          value: airflow
-        - name: POSTGRES_USER
-          value: airflow
-        - name: POSTGRES_PASSWORD
-          value: airflow
-        volumeMounts:
-        - name: postgres-data
-          mountPath: /var/lib/postgresql/data
-        resources:
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: airflow
+            - name: POSTGRES_USER
+              value: airflow
+            - name: POSTGRES_PASSWORD
+              value: airflow
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          resources:
           requests:
             memory: "512Mi"
             cpu: "250m"
