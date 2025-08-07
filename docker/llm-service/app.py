@@ -15,10 +15,12 @@ from datetime import datetime
 try:  # pragma: no cover - best effort import
     import torch  # type: ignore
     from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline as hf_pipeline
+    import bitsandbytes as bnb  # type: ignore
 except Exception as e:  # pragma: no cover - handled at runtime
     torch = None  # type: ignore
     AutoTokenizer = AutoModelForCausalLM = None  # type: ignore
     hf_pipeline = None
+    bnb = None  # type: ignore
     IMPORT_ERROR = e
 else:
     IMPORT_ERROR = None
@@ -121,18 +123,27 @@ async def load_model():
 
     try:
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-        model = AutoModelForCausalLM.from_pretrained(
-            MODEL_NAME,
-            torch_dtype=torch.float16,
-            device_map="auto",
-            load_in_8bit=True,  # Enable 8-bit quantization for efficiency
-        )
+
+        if torch.cuda.is_available() and bnb is not None:
+            model = AutoModelForCausalLM.from_pretrained(
+                MODEL_NAME,
+                torch_dtype=torch.float16,
+                device_map="auto",
+                load_in_8bit=True,
+            )
+            device = 0
+        else:
+            model = AutoModelForCausalLM.from_pretrained(
+                MODEL_NAME,
+                torch_dtype=torch.float32,
+            )
+            device = -1
 
         generation_pipeline = hf_pipeline(
             "text-generation",
             model=model,
             tokenizer=tokenizer,
-            device_map="auto",
+            device=device,
         )
 
         logger.info("Model loaded successfully")
@@ -336,3 +347,4 @@ async def get_batch_status(batch_id: str):
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+

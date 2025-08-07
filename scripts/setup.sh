@@ -24,9 +24,9 @@ kubectl wait --namespace ingress-nginx \
   --timeout=120s
 
 # Build Docker images
-echo "Building Docker images..."
-docker build -t llm-service:latest -f docker/llm-service/Dockerfile docker/llm-service/
-docker build -t airflow:latest -f docker/airflow/Dockerfile docker/airflow/
+echo "Building multi-architecture Docker images..."
+docker buildx build --platform linux/amd64,linux/arm64 -t llm-service:latest -f docker/llm-service/Dockerfile docker/llm-service/ --load
+docker buildx build --platform linux/amd64,linux/arm64 -t airflow:latest -f docker/airflow/Dockerfile docker/airflow/ --load
 
 # Load images into kind/minikube if using local cluster
 if [[ $(kubectl config current-context) == "kind-"* ]]; then
@@ -68,3 +68,4 @@ stringData:
 EOF
 
 echo "Setup complete! Run ./scripts/deploy.sh to deploy the application."
+
