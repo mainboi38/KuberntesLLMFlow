@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-
+#docker buildx create --name multiarch --driver docker-container --use
 echo "Setting up LLM Kubernetes Production Environment..."
 
 # Check prerequisites
@@ -22,17 +22,6 @@ kubectl wait --namespace ingress-nginx \
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
   --timeout=120s
-
-# Build Docker images for the host architecture
-echo "Building Docker images for local architecture..."
-ARCH=$(uname -m)
-PLATFORM="linux/amd64"
-if [[ "$ARCH" == "arm64" || "$ARCH" == "aarch64" ]]; then
-    PLATFORM="linux/arm64"
-fi
-
-docker buildx build --platform "$PLATFORM" -t llm-service:latest -f docker/llm-service/Dockerfile docker/llm-service/ --load
-docker buildx build --platform "$PLATFORM" -t airflow:latest -f docker/airflow/Dockerfile docker/airflow/ --load
 
 # Load images into kind/minikube if using local cluster
 if [[ $(kubectl config current-context) == "kind-"* ]]; then
