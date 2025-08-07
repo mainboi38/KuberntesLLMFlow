@@ -25,8 +25,8 @@ kubectl wait --namespace ingress-nginx \
 
 # Build Docker images
 echo "Building multi-architecture Docker images..."
-docker buildx build --platform linux/amd64,linux/arm64 -t llm-service:latest -f docker/llm-service/Dockerfile docker/llm-service/ --load
-docker buildx build --platform linux/amd64,linux/arm64 -t airflow:latest -f docker/airflow/Dockerfile docker/airflow/ --load
+docker buildx build --platform linux/amd64,linux/arm64 -t llm-service:latest -f docker/llm-service/Dockerfile docker/llm-service/ --push
+docker buildx build --platform linux/amd64,linux/arm64 -t airflow:latest -f docker/airflow/Dockerfile docker/airflow/ --push
 
 # Load images into kind/minikube if using local cluster
 if [[ $(kubectl config current-context) == "kind-"* ]]; then
