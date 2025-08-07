@@ -45,8 +45,8 @@ Two helper scripts automate cluster setup and deployment:
 1. **Build images**
    ```bash
    docker build -t llm-service:latest docker/llm-service
-   docker build -t airflow:latest docker/airflow
    ```
+   The deployment uses the official Apache Airflow image `apache/airflow:2.7.3-python3.10`, so no additional build step is required.
 2. **Set up cluster prerequisites**
    ```bash
    ./scripts/setup.sh

@@ -27,11 +27,9 @@ kubectl wait --namespace ingress-nginx \
 if [[ $(kubectl config current-context) == "kind-"* ]]; then
     echo "Loading images into kind cluster..."
     kind load docker-image llm-service:latest
-    kind load docker-image airflow:latest
 elif [[ $(kubectl config current-context) == "minikube" ]]; then
     echo "Loading images into minikube..."
     minikube image load llm-service:latest
-    minikube image load airflow:latest
 fi
 
 # Create ConfigMaps for Airflow DAGs
