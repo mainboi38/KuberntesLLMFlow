@@ -14,8 +14,8 @@ spec:
         app: postgres-airflow
     spec:
       containers:
-      - name: postgres
-        image: postgres:14-alpine
+        - name: postgres
+          image: postgres:14
         ports:
         - containerPort: 5432
         env:

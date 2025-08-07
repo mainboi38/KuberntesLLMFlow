@@ -23,10 +23,16 @@ kubectl wait --namespace ingress-nginx \
   --selector=app.kubernetes.io/component=controller \
   --timeout=120s
 
-# Build Docker images
-echo "Building multi-architecture Docker images..."
-docker buildx build --platform linux/amd64,linux/arm64 -t llm-service:latest -f docker/llm-service/Dockerfile docker/llm-service/ --push
-docker buildx build --platform linux/amd64,linux/arm64 -t airflow:latest -f docker/airflow/Dockerfile docker/airflow/ --push
+# Build Docker images for the host architecture
+echo "Building Docker images for local architecture..."
+ARCH=$(uname -m)
+PLATFORM="linux/amd64"
+if [[ "$ARCH" == "arm64" || "$ARCH" == "aarch64" ]]; then
+    PLATFORM="linux/arm64"
+fi
+
+docker buildx build --platform "$PLATFORM" -t llm-service:latest -f docker/llm-service/Dockerfile docker/llm-service/ --load
+docker buildx build --platform "$PLATFORM" -t airflow:latest -f docker/airflow/Dockerfile docker/airflow/ --load
 
 # Load images into kind/minikube if using local cluster
 if [[ $(kubectl config current-context) == "kind-"* ]]; then
