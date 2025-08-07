@@ -29,11 +29,9 @@ spec:
           requests:
             memory: "8Gi"
             cpu: "2"
-            nvidia.com/gpu: "1"  # Request 1 GPU
           limits:
             memory: "16Gi"
             cpu: "4"
-            nvidia.com/gpu: "1"
         volumeMounts:
         - name: model-storage
           mountPath: /app/models
@@ -53,5 +51,3 @@ spec:
       - name: model-storage
         persistentVolumeClaim:
           claimName: model-storage
-      nodeSelector:
-        nvidia.com/gpu: "true"  # Schedule on GPU nodes
